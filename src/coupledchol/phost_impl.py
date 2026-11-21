@@ -36,6 +36,9 @@ class CoupledRuntime:
     def metrics(self):
         return self.chol.metrics()
 
+    def reset_metrics(self):
+        self.chol.reset_metrics()
+
 
 def _applicable(facts):
     if facts.device_kind != "cuda":

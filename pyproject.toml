@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "coupledchol"
+version = "0.1.0.dev0"
+description = "Exact coupled-block Cholesky for batched Newton systems with diagonal-plus-block structure (Warp)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+dependencies = ["numpy>=1.24", "warp-lang>=1.15,<2"]
+
+[project.optional-dependencies]
+phost = ["phost"]
+test = ["pytest>=7", "phost"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

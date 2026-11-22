@@ -14,7 +14,7 @@ except Exception:                                    # pragma: no cover
 pytestmark = pytest.mark.skipif(not HAVE, reason="needs mujoco, mujoco_warp and CUDA")
 
 if HAVE:
-    import coupledchol.phost_impl as impl
+    import phost_coupledchol.phost_impl as impl
     from phost import GuardError, Registry, Selection, Session
     from phost.hosts import mjwarp as adapter
     from phost.stages import newton_linear as nl

@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 import warp as wp
 
-from coupledchol import CoupledCholesky
+from phost_coupledchol import CoupledCholesky
 from helpers import DEVICE, Arrays, cuda_available, dense_from_upper, make_batch, relative_residual
 
 pytestmark = pytest.mark.skipif(not cuda_available(), reason="needs CUDA")

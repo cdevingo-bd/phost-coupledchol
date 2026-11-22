@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "coupledchol"
+name = "phost-coupledchol"
 version = "0.1.0.dev0"
 description = "Exact coupled-block Cholesky for batched Newton systems with diagonal-plus-block structure (Warp)"
 readme = "README.md"

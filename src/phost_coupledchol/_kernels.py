@@ -1,6 +1,6 @@
 """Device kernels of the coupled-block Cholesky. See ``workspace.CoupledCholesky`` for the algorithm.
 
-Numerics are carried over unchanged from deform3d's coupled workspace. Two interface changes: the
+Numerics are carried over unchanged from the coupled workspace of the author's earlier deform3d project (retired). Two interface changes: the
 fallback request is an int32 world mask, and ``_prepare`` derives the refactor mask from the
 caller's ``active``/``refactor`` ports instead of from a host's skip counters.
 """

@@ -1,7 +1,7 @@
 """Register the coupled-block Cholesky as implementations of phost's ``newton.linear_solve`` stage.
 
-    import phost, coupledchol.phost_impl
-    coupledchol.phost_impl.register(phost.default)
+    import phost, phost_coupledchol.phost_impl
+    phost_coupledchol.phost_impl.register(phost.default)
 
 Two implementations: ``coupled`` finds the coupled DOFs by scanning H (always exact, no host
 assumptions) and ``coupled-structural`` takes them from the host's structure hint (cheaper at high
@@ -81,13 +81,13 @@ def impls() -> list[Impl]:
              kind=ImplKind.BUILTIN, doc="Finds the coupled DOFs by scanning the upper triangle of H.", params=_PARAMS,
              fit=_FIT, metrics=_EXTRA_METRICS, extensions_used=("fallback",), applicable=_applicable, advisory=_advisory,
              factory=lambda host, params: CoupledRuntime(host, params, structural=False),
-             provenance=dict(package="coupledchol")),
+             provenance=dict(package="phost-coupledchol")),
         Impl(id=STRUCTURAL, stage=nl.NAME, stage_version=nl.CONTRACT.version, version="0.1",
              title="Coupled-block Cholesky (structure hint)", kind=ImplKind.BUILTIN,
              doc="Takes the coupled DOFs from the host's structure hint instead of scanning H.", params=_PARAMS,
              fit=_FIT, metrics=_EXTRA_METRICS, extensions_used=("structure_hint", "fallback"), applicable=_applicable,
              advisory=_advisory, factory=lambda host, params: CoupledRuntime(host, params, structural=True),
-             provenance=dict(package="coupledchol")),
+             provenance=dict(package="phost-coupledchol")),
     ]
 
 

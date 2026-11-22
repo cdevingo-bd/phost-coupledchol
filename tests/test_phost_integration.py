@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-import coupledchol.phost_impl as impl
+import phost_coupledchol.phost_impl as impl
 from helpers import cuda_available
 from phost import ApplicabilityError, Registry, Selection, Session
 from phost.stages import newton_linear as nl

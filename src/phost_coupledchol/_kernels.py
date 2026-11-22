@@ -312,3 +312,10 @@ def _kernels(nv, cmax, tile):
             max_residual[w] = wp.max(max_residual[w], wp.float32(relative))
 
     return solve, finish
+
+
+@wp.kernel(enable_backward=False)
+def _negate(search: wp.array2d(dtype=wp.float32), out: wp.array2d(dtype=wp.float32)):
+    # The Newton solve returns -H^-1 g; the effective-metric stage wants +M_hat^-1 rhs.
+    w, i = wp.tid()
+    out[w, i] = -search[w, i]

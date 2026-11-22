@@ -5,6 +5,6 @@ dense block, on the GPU with Warp. It factors only the DOFs that have an off-dia
 cost is about c^3 instead of nv^3.
 
 No simulator is imported. `phost_coupledchol.phost_impl` registers it as an implementation of the
-`newton.linear_solve` stage of [phost](../phost).
+`newton.linear_solve` stage of [phost](https://github.com/cdevingo-bd/phost).
 
 MIT licensed. Status: pre-release; being extracted from a working implementation.

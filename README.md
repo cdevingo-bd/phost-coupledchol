@@ -1,12 +1,12 @@
 # phost-coupledchol
 
-Exact coupled-block Cholesky for batched Newton systems whose Hessian is a diagonal plus a small
-dense block, on the GPU with Warp. It factors only the DOFs that have an off-diagonal entry, so the
-cost is about c^3 instead of nv^3.
+Coupled-block Cholesky for the Newton linear solve in MuJoCo Warp, packaged as a [phost](https://github.com/cdevingo-bd/phost)
+implementation. It is an exact solver for batched systems whose Hessian is a diagonal plus a small dense block (Warp, on the
+GPU): it factors only the DOFs that have an off-diagonal entry, so the cost is about c^3 instead of nv^3.
 
-No simulator is imported. `phost_coupledchol.phost_impl` registers it as an implementation of the
-`newton.linear_solve` stage of [phost](https://github.com/cdevingo-bd/phost), and, with the same factorization, as
-`effective.solve/coupled` for the `effective.solve` stage (below).
+No simulator is imported. `phost_coupledchol.phost_impl` registers it as an implementation of the `newton.linear_solve`
+stage and, with the same factorization, as `effective.solve/coupled` for the `effective.solve` stage. The second is
+measured slower than the host's own solve on the lab's flex scenes; the numbers are below.
 
 ## The effective-metric solve, and a measured slowdown
 

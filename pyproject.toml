@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "phost-coupledchol"
 version = "0.1.0.dev0"
-description = "Exact coupled-block Cholesky for batched Newton systems with diagonal-plus-block structure (Warp)"
+description = "Coupled-block Cholesky for the Newton linear solve in MuJoCo Warp (factors only the coupled DOFs), packaged as a phost implementation."
 readme = "README.md"
 requires-python = ">=3.10"
 license = {file = "LICENSE"}

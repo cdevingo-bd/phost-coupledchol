@@ -80,11 +80,6 @@ def _applicable_effective(facts):
         return "needs a CUDA device"
     if "device" not in facts.extra:
         return "the host did not report its device in facts.extra['device']"
-    blocker = facts.extra.get("effective_blocker")
-    if blocker is None:
-        return "the host did not say whether the effective-metric solve can be replaced (facts.extra['effective_blocker'])"
-    if blocker:
-        return blocker
     if not 1 <= facts.nv <= MAX_NV:
         return f"nv={facts.nv} is outside 1..{MAX_NV}"
     return None
@@ -166,7 +161,7 @@ def impls() -> list[Impl]:
 
 
 def register(registry: Registry) -> None:
-    for contract in (nl.CONTRACT, es.CONTRACT):      # adding the same contract again is a no-op
-        registry.add_contract(contract)
+    for spec in (nl.SPEC, es.SPEC):      # a stage with its judge; adding the same one again is a no-op
+        registry.add_stage(spec)
     for impl in impls():
         registry.add_impl(impl)

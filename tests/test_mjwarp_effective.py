@@ -84,7 +84,7 @@ def test_meets_the_contract_on_the_matrix_the_host_assembled(host, registry, par
 def test_is_offered_only_where_the_host_solves_an_effective_metric(registry):
     flex = impl.EFFECTIVE
     euler = make_host("Euler", nworld=1)
-    assert euler.facts().extra["effective_blocker"]
+    assert euler.refusal(es.NAME)
     with pytest.raises(ApplicabilityError, match="discrete integrator"):
         Session(euler, [Selection(es.NAME, flex)], registry).__enter__()
 

@@ -5,15 +5,16 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "phost-coupledchol"
 version = "0.1.0.dev0"
-description = "Coupled-block Cholesky for the Newton linear solve in MuJoCo Warp (factors only the coupled DOFs), packaged as a phost implementation."
+description = "Coupled-block Cholesky (factors only the coupled DOFs) with a Warp backend and a NumPy one, packaged as phost implementations of two stages."
 readme = "README.md"
 requires-python = ">=3.10"
 license = {file = "LICENSE"}
-dependencies = ["numpy>=1.24", "warp-lang>=1.15,<2"]
+dependencies = ["numpy>=1.24"]
 
 [project.optional-dependencies]
+warp = ["warp-lang>=1.15,<2"]
 phost = ["phost"]
-test = ["pytest>=7", "phost"]
+test = ["pytest>=7", "phost", "warp-lang>=1.15,<2"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

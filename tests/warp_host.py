@@ -18,9 +18,11 @@ def _dev(a, dtype):
 
 class WarpFakeHost(FakeHost):
     info = HostInfo(name="fake-warp", version="1", build_id="fake-build-1", patched=False)
+    backend = "warp"                                       # its stage ports are Warp arrays
 
     def facts(self):
-        return ModelFacts(nv=self.model.nv, world_count=self.data.nworld, device_kind="cuda", extra={"device": DEVICE})
+        return ModelFacts(nv=self.model.nv, world_count=self.data.nworld, device_kind="cuda", backend=self.backend,
+                          extra={"device": DEVICE})
 
     def stages(self):
         if self._stages is None:

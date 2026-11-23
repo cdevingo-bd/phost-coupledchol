@@ -34,8 +34,7 @@ import numpy as np
 import warp as wp
 
 from . import _kernels as k
-
-MAX_NV = 512
+from .limits import MAX_NV  # noqa: F401  (re-exported: it used to live here)
 
 
 class CoupledCholesky:

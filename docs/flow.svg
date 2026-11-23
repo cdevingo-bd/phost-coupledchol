@@ -36,7 +36,7 @@
 <defs><marker id="h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,1 L9,5 L0,9 z" style="fill:var(--ink2)"/></marker><marker id="ha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,1 L9,5 L0,9 z" style="fill:var(--accent)"/></marker></defs>
 <rect x="0" y="0" width="1000" height="700" style="fill:var(--bg)"/>
 <text x="24" y="28" class="title" text-anchor="start">phost-coupledchol: factor only the coupled DOFs</text>
-<text x="976" y="28" class="tag mono" text-anchor="end">a Warp solver over arrays; it imports no simulator</text>
+<text x="976" y="28" class="tag mono" text-anchor="end">a Warp backend and a NumPy one; it imports no simulator</text>
 <rect x="24" y="50" width="16" height="16" rx="2" class="badge"/>
 <text x="32" y="62" class="badgetx">1</text>
 <text x="48" y="62" class="head" text-anchor="start">The system</text>
@@ -79,9 +79,9 @@
 <text x="252" y="132" class="tag" text-anchor="start">1 find coupled DOFs</text>
 <text x="254" y="145" class="tag" text-anchor="start">2 compact them</text>
 <rect x="500" y="118" width="250" height="66" rx="3" class="corebox"/>
-<text x="509" y="136" class="bold mono" text-anchor="start">3 tile Cholesky, then solve</text>
-<text x="509" y="153" class="small" text-anchor="start">Warp tile kernel (tile 16 or 32);</text>
-<text x="509" y="167" class="small" text-anchor="start">work only for the tiles each world needs</text>
+<text x="509" y="136" class="bold mono" text-anchor="start">3 Cholesky, then solve</text>
+<text x="509" y="153" class="small" text-anchor="start">Warp: a tile kernel (16 or 32)</text>
+<text x="509" y="167" class="small" text-anchor="start">NumPy: np.linalg.cholesky, float64</text>
 <path d="M476,172 L498,151" class="aarrow"/>
 <rect x="500" y="210" width="250" height="58" rx="3" class="box"/>
 <text x="509" y="228" class="bold mono" text-anchor="start">4 every other DOF</text>
@@ -106,32 +106,33 @@
 <text x="33" y="465" class="small" text-anchor="start">sets a status bit</text>
 <rect x="350" y="402" width="300" height="70" rx="3" class="box"/>
 <text x="359" y="420" class="bold mono" text-anchor="start">too many coupled DOFs</text>
-<text x="359" y="437" class="small" text-anchor="start">a world over max_coupled is handed</text>
-<text x="359" y="451" class="small" text-anchor="start">back to the caller through</text>
+<text x="359" y="437" class="small" text-anchor="start">Warp: a world over max_coupled is</text>
+<text x="359" y="451" class="small" text-anchor="start">handed back to the caller through</text>
 <text x="359" y="465" class="small" text-anchor="start">a fallback callable</text>
 <rect x="676" y="402" width="300" height="70" rx="3" class="box"/>
 <text x="685" y="420" class="bold mono" text-anchor="start">status bits (sticky)</text>
 <text x="685" y="437" class="small" text-anchor="start">1 non-finite or non-positive pivot</text>
 <text x="685" y="451" class="small" text-anchor="start">2 residual above 1e-4</text>
-<text x="685" y="465" class="small" text-anchor="start">4 the structure hint missed a DOF</text>
+<text x="685" y="465" class="small" text-anchor="start">4 the hint missed a DOF (Warp, newton)</text>
 <rect x="24" y="500" width="16" height="16" rx="2" class="badge"/>
 <text x="32" y="512" class="badgetx">3</text>
 <text x="48" y="512" class="head" text-anchor="start">Where it plugs in</text>
 <text x="179.0" y="512" class="sub" text-anchor="start">a phost implementation of two stages</text>
 <rect x="24" y="528" width="300" height="84" rx="3" class="corebox"/>
 <text x="33" y="546" class="bold mono" text-anchor="start">newton.linear_solve/coupled</text>
-<text x="33" y="563" class="small" text-anchor="start">exact; the Newton step for H and g.</text>
-<text x="33" y="577" class="small" text-anchor="start">/coupled-structural takes the host's</text>
-<text x="33" y="591" class="small" text-anchor="start">hint for the coupled DOFs, no scan</text>
+<text x="33" y="563" class="small" text-anchor="start">exact; the Newton step for H and g;</text>
+<text x="33" y="577" class="small" text-anchor="start">Warp arrays only. /coupled-structural</text>
+<text x="33" y="591" class="small" text-anchor="start">takes the host's hint, no scan</text>
 <rect x="350" y="528" width="300" height="84" rx="3" class="corebox"/>
 <text x="359" y="546" class="bold mono" text-anchor="start">effective.solve/coupled</text>
-<text x="359" y="563" class="small" text-anchor="start">exact; x = M_hat^-1 rhs for the host's</text>
-<text x="359" y="577" class="small" text-anchor="start">effective metric; nv up to 512</text>
+<text x="359" y="563" class="small" text-anchor="start">exact; x = M_hat^-1 rhs. A Warp backend</text>
+<text x="359" y="577" class="small" text-anchor="start">(CUDA, nv up to 512) and a NumPy one</text>
+<text x="359" y="591" class="small" text-anchor="start">(CPU, any nv), built from the host</text>
 <rect x="676" y="528" width="300" height="84" rx="3" class="box"/>
 <text x="685" y="546" class="bold mono" text-anchor="start">needs</text>
-<text x="685" y="563" class="small" text-anchor="start">Warp on a CUDA device, arrays in a</text>
-<text x="685" y="577" class="small" text-anchor="start">known layout; a host that supplies them</text>
-<text x="685" y="591" class="small" text-anchor="start">and says when it cannot (applicability)</text>
+<text x="685" y="563" class="small" text-anchor="start">the host's array type picks the backend:</text>
+<text x="685" y="577" class="small" text-anchor="start">Warp on CUDA, or NumPy; another kind is</text>
+<text x="685" y="591" class="small" text-anchor="start">refused with a reason (applicability)</text>
 <text x="24" y="640" class="small" text-anchor="start">Whether it pays depends on the host's own solve: exact swaps are ranked on speed, and the lab says what a stage is worth first.</text>
-<text x="24" y="656" class="small" text-anchor="start">Measured on one host, MuJoCo Warp: faster where the host's iteration is slow, slower where it converges in a few steps (see the README).</text>
+<text x="24" y="656" class="small" text-anchor="start">Measured on MuJoCo Warp (Warp backend): faster where the host's iteration is slow, slower where it converges in a few steps. NumPy: for CPU hosts, not speed.</text>
 </svg>

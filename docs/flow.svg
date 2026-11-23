@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" width="1000" height="700" role="img" aria-labelledby="ttl dsc">
+<title id="ttl">phost-coupledchol: factor only the coupled DOFs</title>
+<desc id="dsc">A batched system H x = g whose matrix is a diagonal plus a small dense block. For each world: find the coupled DOFs (those with an off-diagonal entry), compact them into a dense c by c matrix, factor it with a tile Cholesky and solve; every other DOF is solved as g over the diagonal entry. A float64 residual gate checks every solve, and a world with too many coupled DOFs is handed to a fallback. It is registered as an implementation of two phost stages and imports no simulator.</desc>
+<style>
+  :root { --bg:#ffffff; --ink:#1b1b1a; --ink2:#4a4945; --muted:#66645f; --line:#8c8a84; --rule:#d6d5cf;
+          --host:#efeeea; --accent:#1f5fbf; --accentfill:#e8f0fb; --onaccent:#ffffff; --warn:#8a4b00; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#161615; --ink:#ecebe7; --ink2:#c2c1ba; --muted:#8f8d86; --line:#77756f; --rule:#34332f;
+            --host:#242422; --accent:#6ea2f0; --accentfill:#1b2a40; --onaccent:#0d1726; --warn:#e0a458; }
+  }
+  text { font-family: system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: var(--ink); font-size: 12px; }
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace; }
+  .title { font-size: 16px; font-weight: 700; }
+  .head { font-size: 13px; font-weight: 700; }
+  .sub { fill: var(--ink2); }
+  .small { font-size: 11px; fill: var(--ink2); }
+  .tag { font-size: 10.5px; fill: var(--muted); }
+  .bold { font-weight: 700; }
+  .acc { fill: var(--accent); }
+  .mut { fill: var(--muted); }
+  .warn { fill: var(--warn); }
+  .box { fill: var(--bg); stroke: var(--line); stroke-width: 1; }
+  .hostbox { fill: var(--host); stroke: var(--line); stroke-width: 1; }
+  .corebox { fill: var(--accentfill); stroke: var(--accent); stroke-width: 1; }
+  .ownbox { fill: var(--bg); stroke: var(--accent); stroke-width: 1.4; }
+  .yours { fill: none; stroke: var(--line); stroke-width: 1; stroke-dasharray: 4 3; }
+  .frame { fill: none; stroke: var(--rule); stroke-width: 1; }
+  .rule { stroke: var(--rule); stroke-width: 1; fill: none; }
+  .ln { stroke: var(--line); stroke-width: 1; fill: none; }
+  .arrow { stroke: var(--ink2); stroke-width: 1.2; fill: none; marker-end: url(#h); }
+  .aarrow { stroke: var(--accent); stroke-width: 1.2; fill: none; marker-end: url(#ha); }
+  .back { stroke: var(--muted); stroke-width: 1; fill: none; stroke-dasharray: 3 3; marker-end: url(#h); }
+  .badge { fill: var(--accent); }
+  .badgetx { fill: var(--onaccent); font-size: 10.5px; font-weight: 700; text-anchor: middle; }
+</style>
+<defs><marker id="h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,1 L9,5 L0,9 z" style="fill:var(--ink2)"/></marker><marker id="ha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,1 L9,5 L0,9 z" style="fill:var(--accent)"/></marker></defs>
+<rect x="0" y="0" width="1000" height="700" style="fill:var(--bg)"/>
+<text x="24" y="28" class="title" text-anchor="start">phost-coupledchol: factor only the coupled DOFs</text>
+<text x="976" y="28" class="tag mono" text-anchor="end">a Warp solver over arrays; it imports no simulator</text>
+<rect x="24" y="50" width="16" height="16" rx="2" class="badge"/>
+<text x="32" y="62" class="badgetx">1</text>
+<text x="48" y="62" class="head" text-anchor="start">The system</text>
+<text x="130.0" y="62" class="sub" text-anchor="start">per world: H x = g, where H is a diagonal plus a small dense block</text>
+<rect x="40" y="92" width="204" height="204" class="box"/>
+<rect x="41" y="93" width="15" height="15" style="fill:var(--muted);opacity:.55"/>
+<rect x="58" y="110" width="15" height="15" style="fill:var(--muted);opacity:.55"/>
+<rect x="75" y="127" width="15" height="15" style="fill:var(--muted);opacity:.55"/>
+<rect x="126" y="127" width="15" height="15" style="fill:var(--accent)"/>
+<rect x="143" y="127" width="15" height="15" style="fill:var(--accent)"/>
+<rect x="194" y="127" width="15" height="15" style="fill:var(--accent)"/>
+<rect x="92" y="144" width="15" height="15" style="fill:var(--muted);opacity:.55"/>
+<rect x="109" y="161" width="15" height="15" style="fill:var(--muted);opacity:.55"/>
+<rect x="126" y="178" width="15" height="15" style="fill:var(--muted);opacity:.55"/>
+<rect x="143" y="178" width="15" height="15" style="fill:var(--accent)"/>
+<rect x="194" y="178" width="15" height="15" style="fill:var(--accent)"/>
+<rect x="143" y="195" width="15" height="15" style="fill:var(--muted);opacity:.55"/>
+<rect x="194" y="195" width="15" height="15" style="fill:var(--accent)"/>
+<rect x="160" y="212" width="15" height="15" style="fill:var(--muted);opacity:.55"/>
+<rect x="177" y="229" width="15" height="15" style="fill:var(--muted);opacity:.55"/>
+<rect x="194" y="246" width="15" height="15" style="fill:var(--muted);opacity:.55"/>
+<rect x="211" y="263" width="15" height="15" style="fill:var(--muted);opacity:.55"/>
+<rect x="228" y="280" width="15" height="15" style="fill:var(--muted);opacity:.55"/>
+<text x="44" y="312" class="tag" text-anchor="start">H: upper triangle valid, lower undefined</text>
+<text x="44" y="326" class="tag" text-anchor="start">gray: diagonal   blue: off-diagonal entries</text>
+<text x="44" y="340" class="tag" text-anchor="start">(coupled DOFs here: 2, 5, 6, 9)</text>
+<text x="366" y="110" class="small" text-anchor="start">the coupled block, compacted: c x c</text>
+<rect x="366" y="120" width="104" height="104" class="box"/>
+<rect x="367" y="121" width="24" height="24" style="fill:var(--accent)"/>
+<rect x="393" y="121" width="24" height="24" style="fill:var(--accent)"/>
+<rect x="419" y="121" width="24" height="24" style="fill:var(--accent)"/>
+<rect x="445" y="121" width="24" height="24" style="fill:var(--accent)"/>
+<rect x="393" y="147" width="24" height="24" style="fill:var(--accent)"/>
+<rect x="419" y="147" width="24" height="24" style="fill:var(--accent)"/>
+<rect x="445" y="147" width="24" height="24" style="fill:var(--accent)"/>
+<rect x="419" y="173" width="24" height="24" style="fill:var(--accent)"/>
+<rect x="445" y="173" width="24" height="24" style="fill:var(--accent)"/>
+<rect x="445" y="199" width="24" height="24" style="fill:var(--accent)"/>
+<path d="M252,162 L358,172" class="aarrow"/>
+<text x="252" y="132" class="tag" text-anchor="start">1 find coupled DOFs</text>
+<text x="254" y="145" class="tag" text-anchor="start">2 compact them</text>
+<rect x="500" y="118" width="250" height="66" rx="3" class="corebox"/>
+<text x="509" y="136" class="bold mono" text-anchor="start">3 tile Cholesky, then solve</text>
+<text x="509" y="153" class="small" text-anchor="start">Warp tile kernel (tile 16 or 32);</text>
+<text x="509" y="167" class="small" text-anchor="start">work only for the tiles each world needs</text>
+<path d="M476,172 L498,151" class="aarrow"/>
+<rect x="500" y="210" width="250" height="58" rx="3" class="box"/>
+<text x="509" y="228" class="bold mono" text-anchor="start">4 every other DOF</text>
+<text x="509" y="245" class="small" text-anchor="start">x_i = g_i / H_ii</text>
+<text x="509" y="259" class="small" text-anchor="start">no factorization at all</text>
+<path d="M252,242 L498,239" class="arrow"/>
+<rect x="782" y="150" width="194" height="76" rx="3" class="ownbox"/>
+<text x="791" y="168" class="bold mono" text-anchor="start">x</text>
+<text x="791" y="185" class="small" text-anchor="start">the coupled entries from</text>
+<text x="791" y="199" class="small" text-anchor="start">the solve, the rest from</text>
+<text x="791" y="213" class="small" text-anchor="start">g_i / H_ii</text>
+<path d="M752,151 L780,176" class="aarrow"/>
+<path d="M752,239 L780,205" class="arrow"/>
+<text x="500" y="300" class="small" text-anchor="start">cost per world: about c^3 instead of nv^3, exact and not an approximation</text>
+<rect x="24" y="374" width="16" height="16" rx="2" class="badge"/>
+<text x="32" y="386" class="badgetx">2</text>
+<text x="48" y="386" class="head" text-anchor="start">Checked, and what happens when it cannot</text>
+<rect x="24" y="402" width="300" height="70" rx="3" class="box"/>
+<text x="33" y="420" class="bold mono" text-anchor="start">5 residual gate</text>
+<text x="33" y="437" class="small" text-anchor="start">every solve is checked in float64;</text>
+<text x="33" y="451" class="small" text-anchor="start">a relative residual above 1e-4</text>
+<text x="33" y="465" class="small" text-anchor="start">sets a status bit</text>
+<rect x="350" y="402" width="300" height="70" rx="3" class="box"/>
+<text x="359" y="420" class="bold mono" text-anchor="start">too many coupled DOFs</text>
+<text x="359" y="437" class="small" text-anchor="start">a world over max_coupled is handed</text>
+<text x="359" y="451" class="small" text-anchor="start">back to the caller through</text>
+<text x="359" y="465" class="small" text-anchor="start">a fallback callable</text>
+<rect x="676" y="402" width="300" height="70" rx="3" class="box"/>
+<text x="685" y="420" class="bold mono" text-anchor="start">status bits (sticky)</text>
+<text x="685" y="437" class="small" text-anchor="start">1 non-finite or non-positive pivot</text>
+<text x="685" y="451" class="small" text-anchor="start">2 residual above 1e-4</text>
+<text x="685" y="465" class="small" text-anchor="start">4 the structure hint missed a DOF</text>
+<rect x="24" y="500" width="16" height="16" rx="2" class="badge"/>
+<text x="32" y="512" class="badgetx">3</text>
+<text x="48" y="512" class="head" text-anchor="start">Where it plugs in</text>
+<text x="179.0" y="512" class="sub" text-anchor="start">a phost implementation of two stages</text>
+<rect x="24" y="528" width="300" height="84" rx="3" class="corebox"/>
+<text x="33" y="546" class="bold mono" text-anchor="start">newton.linear_solve/coupled</text>
+<text x="33" y="563" class="small" text-anchor="start">exact; the Newton step for H and g.</text>
+<text x="33" y="577" class="small" text-anchor="start">/coupled-structural takes the host's</text>
+<text x="33" y="591" class="small" text-anchor="start">hint for the coupled DOFs, no scan</text>
+<rect x="350" y="528" width="300" height="84" rx="3" class="corebox"/>
+<text x="359" y="546" class="bold mono" text-anchor="start">effective.solve/coupled</text>
+<text x="359" y="563" class="small" text-anchor="start">exact; x = M_hat^-1 rhs for the host's</text>
+<text x="359" y="577" class="small" text-anchor="start">effective metric; nv up to 512</text>
+<rect x="676" y="528" width="300" height="84" rx="3" class="box"/>
+<text x="685" y="546" class="bold mono" text-anchor="start">needs</text>
+<text x="685" y="563" class="small" text-anchor="start">Warp on a CUDA device, arrays in a</text>
+<text x="685" y="577" class="small" text-anchor="start">known layout; a host that supplies them</text>
+<text x="685" y="591" class="small" text-anchor="start">and says when it cannot (applicability)</text>
+<text x="24" y="640" class="small" text-anchor="start">Whether it pays depends on the host's own solve: exact swaps are ranked on speed, and the lab says what a stage is worth first.</text>
+<text x="24" y="656" class="small" text-anchor="start">Measured on one host, MuJoCo Warp: faster where the host's iteration is slow, slower where it converges in a few steps (see the README).</text>
+</svg>

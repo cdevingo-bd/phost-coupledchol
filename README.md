@@ -1,16 +1,20 @@
 # phost-coupledchol
 
-Coupled-block Cholesky for the Newton linear solve in MuJoCo Warp, packaged as a [phost](https://github.com/cdevingo-bd/phost)
-implementation. It is an exact solver for batched systems whose Hessian is a diagonal plus a small dense block (Warp, on the
-GPU): it factors only the DOFs that have an off-diagonal entry, so the cost is about c^3 instead of nv^3.
+A coupled-block Cholesky solver, packaged as a [phost](https://github.com/cdevingo-bd/phost) implementation of the linear-solve
+stages. It is an exact solver for batched systems whose matrix is a diagonal plus a small dense block (Warp, on a CUDA GPU): it
+factors only the DOFs that have an off-diagonal entry, so the cost is about c^3 instead of nv^3.
 
-No simulator is imported. `phost_coupledchol.phost_impl` registers it as an implementation of the `newton.linear_solve`
-stage and, with the same factorization, as `effective.solve/coupled` for the `effective.solve` stage. The second is
-measured slower than the host's own solve on the lab's flex scenes; the numbers are below.
+![For each world: find the coupled DOFs (those with an off-diagonal entry), compact them into a dense c by c matrix, factor it with a tile Cholesky and solve; every other DOF is g over its diagonal entry. A float64 residual gate checks every solve, and a world with too many coupled DOFs goes to a fallback.](docs/flow.svg)
+
+No simulator is imported: `CoupledCholesky` takes arrays and two optional callables. `phost_coupledchol.phost_impl` registers it as
+an implementation of the `newton.linear_solve` stage and, with the same factorization, as `effective.solve/coupled` for the
+`effective.solve` stage; a host adapter supplies the arrays in the layout the stage's contract names, and says when it cannot (the
+lab's applicability report lists where each applies). The numbers below were measured on one host, MuJoCo Warp, the GPU
+simulator phost has an adapter for; the second implementation is measured slower than that host's own solve on the lab's flex scenes.
 
 ## The effective-metric solve, and a measured slowdown
 
-Under MuJoCo Warp's discrete integrator the host solves `M_hat x = rhs` by conjugate gradients before its constraint
+The example host here is MuJoCo Warp. Under its discrete integrator the host solves `M_hat x = rhs` by conjugate gradients before its constraint
 solver runs, where `M_hat` is the mass matrix plus a diagonal plus a sparse flex stiffness block. The phost adapter
 assembles `M_hat` densely per world, and `effective.solve/coupled` factors it directly (nv up to 512; refused otherwise,
 and refused when the model holds any term other than mass, diagonal and flex stiffness). It is exact: on the lab's
